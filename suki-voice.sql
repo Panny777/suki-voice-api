@@ -26,7 +26,7 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `clients`
 --
-
+DROP TABLE IF EXISTS `clients`;
 CREATE TABLE `clients` (
   `id` int(11) NOT NULL,
   `full_name` varchar(255) NOT NULL,
@@ -53,7 +53,7 @@ INSERT INTO `clients` (`id`, `full_name`, `address`, `email`, `phone_number`, `i
 --
 -- Table structure for table `networks`
 --
-
+DROP TABLE IF EXISTS `networks`;
 CREATE TABLE `networks` (
   `id` int(11) NOT NULL,
   `network` varchar(255) NOT NULL
@@ -72,7 +72,7 @@ INSERT INTO `networks` (`id`, `network`) VALUES
 --
 -- Table structure for table `terminals`
 --
-
+DROP TABLE IF EXISTS `terminals`;
 CREATE TABLE `terminals` (
   `id` int(11) NOT NULL,
   `client_id` int(11) DEFAULT NULL,
@@ -96,7 +96,7 @@ INSERT INTO `terminals` (`id`, `client_id`, `serial_number`, `is_active`, `creat
 --
 -- Table structure for table `tills`
 --
-
+DROP TABLE IF EXISTS `tills`;
 CREATE TABLE `tills` (
   `id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
