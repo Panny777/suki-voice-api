@@ -2,6 +2,7 @@
 
 function getAudioFiles($amount) {
     $audioFiles = str_replace(' ', '', readNumber($amount));
+
     return $audioFiles;
 }
 
@@ -342,7 +343,7 @@ function makumiElfuDouble($number)
     
     switch($makumiElfu)
     {             
-        case 1 : $announce = ($maelfu > 0) ?  "elfu_kumi" . " na " . mamoja($maelfu) : "elfu_kumi";
+        case 1 : $announce = ($maelfu > 0) ?  "elfu_kumi.mp3+" . " na_" . mamoja($maelfu) : "elfu_kumi";
         break;
         case 2 : $announce = $maelfu > 0 ?  "elfu_ishirini" . " na " . mamoja($maelfu) : "elfu_ishirini";
         break;
@@ -361,7 +362,11 @@ function makumiElfuDouble($number)
         case 9 : $announce = $maelfu > 0 ?  "elfu_tisini" . " na " . mamoja($maelfu) : "elfu_tisini";
         break;       
 }
-    return strtoupper($announce) . ".mp3+";  
+
+    $announce = strtoupper($announce) . ".mp3+";
+    $announce = str_replace("+.mp3", "", $announce);
+    $announce = str_replace("MP3", "mp3", $announce);
+    return $announce;  
 
 }
 

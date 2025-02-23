@@ -13,17 +13,10 @@
   * ignore Millionth case
   */
 
-// $audioFiles = announce(readNumber($argv[1]));
+$audioFiles = announce(readNumber($argv[1]));
 
-// // Remove spaces from audio file string
-// echo  str_replace(' ', '', $audioFiles);
-
-
-function getAudioFiles($amount) {
-    $audioFiles = str_replace(' ', '', announce(readNumber($amount)));
-
-    return $audioFiles;
-}
+// Remove spaces from audio file string
+echo  str_replace(' ', '', $audioFiles);
 
 
 
