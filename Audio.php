@@ -16,8 +16,11 @@
 $audioFiles = announce(readNumber($argv[1]));
 
 // Remove spaces from audio file string
-echo  str_replace(' ', '', $audioFiles);
+$audioFiles =str_replace(' ', '', $audioFiles);
+$audioFiles = str_replace('MP3', 'mp3', $audioFiles);
+$audioFiles = str_replace('+.mp3', '', $audioFiles);
 
+echo $audioFiles;
 
 
 function newLine()
@@ -115,8 +118,8 @@ function simpleBuildMalaki($number)
 {
     $malaki = intval(substr(strval($number), 0, 1));
     $makumiElfu = intval(substr(strval($number), 1, 5));
-    $announce = $makumiElfu == 0 ? malaki($malaki)  :  malaki($malaki) . " NA " . buildMakumiElfu($makumiElfu);
-    return strtoupper($announce) . ".mp3+";   
+    $announce = $makumiElfu == 0 ? malaki($malaki)  :  malaki($malaki) . "  " . buildMakumiElfu($makumiElfu);
+    return strtoupper($announce) . "";   
 }
 
 function buildMalaki($number)
@@ -436,31 +439,31 @@ function makumiElfuDouble($number)
 
     switch ($makumiElfu) {
         case 1:
-            $announce = ($maelfu > 0) ?  "elfu_kumi" . " NA " . mamoja($maelfu) : "elfu_kumi";
+            $announce = ($maelfu > 0) ?  "elfu_kumi+" . " NA.mp3+ " . mamoja($maelfu) : "elfu_kumi";
             break;
         case 2:
-            $announce = $maelfu > 0 ?  "elfu_ishirini" . " NA " . mamoja($maelfu) : "elfu_ishirini";
+            $announce = $maelfu > 0 ?  "elfu_ishirini+" . " NA.mp3+ " . mamoja($maelfu) : "elfu_ishirini";
             break;
         case 3:
-            $announce = $maelfu > 0 ?  "elfu_thelathini" . " NA " . mamoja($maelfu) : "elfu_thelathini";
+            $announce = $maelfu > 0 ?  "elfu_thelathini+" . " NA.mp3+ " . mamoja($maelfu) : "elfu_thelathini";
             break;
         case 4:
-            $announce = $maelfu > 0 ?  "elfu_arobaini" . " NA " . mamoja($maelfu) : "elfu_arobaini";
+            $announce = $maelfu > 0 ?  "elfu_arobaini+" . " NA.mp3+ " . mamoja($maelfu) : "elfu_arobaini";
             break;
         case 5:
-            $announce = $maelfu > 0 ?  "elfu_hamsini" . " NA " . mamoja($maelfu) : "elfu_hamsini";
+            $announce = $maelfu > 0 ?  "elfu_hamsini+" . " NA.mp3+ " . mamoja($maelfu) : "elfu_hamsini";
             break;
         case 6:
-            $announce = $maelfu > 0 ?  "elfu_sitini" . " NA " . mamoja($maelfu) : "elfu_sitini";
+            $announce = $maelfu > 0 ?  "elfu_sitini+" . " NA.mp3+ " . mamoja($maelfu) : "elfu_sitini";
             break;
         case 7:
-            $announce = $maelfu > 0 ?  "elfu_sabini" . " NA " . mamoja($maelfu) : "elfu_sabini";
+            $announce = $maelfu > 0 ?  "elfu_sabini+" . " NA.mp3+ " . mamoja($maelfu) : "elfu_sabini";
             break;
         case 8:
-            $announce = $maelfu > 0 ?  "elfu_themanini" . " NA " . mamoja($maelfu) : "elfu_themanini";
+            $announce = $maelfu > 0 ?  "elfu_themanini+" . " NA.mp3+ " . mamoja($maelfu) : "elfu_themanini";
             break;
         case 9:
-            $announce = $maelfu > 0 ?  "elfu_tisini" . " NA " . mamoja($maelfu) : "elfu_tisini";
+            $announce = $maelfu > 0 ?  "elfu_tisini+" . " NA " . mamoja($maelfu) : "elfu_tisini";
             break;
     }
     return strtoupper($announce) . ".mp3+";   
