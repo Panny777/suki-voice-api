@@ -179,7 +179,7 @@ function buildMakumiElfu($number)
         return $makumiElfu  . " " .  $mamia . " NA " . $makumi; // . "" . $mamoja;  19110
     }
 
-    return getDigitAtMamoja($number) > 0 ? $makumiElfu . " " . $mamia . " " . $makumi . " NA " . $mamoja : $makumiElfu . " " . $mamia . " " . $makumi . " " . $mamoja;
+    return getDigitAtMamoja($number) > 0 ? $makumiElfu . " " . $mamia . " " . $makumi . " NA.mp3+ " . $mamoja : $makumiElfu . " " . $mamia . " " . $makumi . " " . $mamoja;
 }
 
 function buildMaelfu($number)
