@@ -20,12 +20,17 @@ include 'getAudioFiles.php';
 // Connection Configuration
 $server   = '193.27.90.199';
 $port     = 1883;
-$clientId = 'mainServer';
+$ApiclientId = 'mainServer';
+
+// $server   = '95.111.218.235';
+// $port     = 1883;
+// $clientId = 'mainServer';
 
 // Accept Json
 header('Content-Type: application/json');
 
 // curl "http://127.0.0.1:5000" -H "Content-Type: application/json" -d '{"tillNumber":"1","MSISDN":"+255", "amount":"1000", "transactionId":"111-1a32-12s", "name":"MUNIRU"}'
+
 // Receive data from POST Request
 // {"tillNumber":"","MSISDN":"+255", "amount":"1000", "transactionId":"111-1a32-12s", "name":"MUNIRU"}
 $data = file_get_contents('php://input');
@@ -39,13 +44,15 @@ if (!json_validator($data)) {
     $name = test_input($data['name'], $connection);
 
     // Get Client Serial Number
-    $serialNumber = getSerialNumber($tillNumber);
+    list($networkAudioFile, $serialNumber) = getTillInfo($tillNumber);
+
     if ($serialNumber) {
         $message = $data;
         $files = getAudioFiles($amount);
-        $message = '{"type":"MP", "file":"' . $files . '"}';
+        $files = $networkAudioFile . $files;
 
-        // $sender = '{"type":"TB", "msg":"uumeepokea"}';
+        $message = '{"type":"MP", "file":"' . $files . '"}';
+        // $message = '{"type":"MP", "file":"' . $files . '"}';
         /*
         * Message comes in the following JSON format:
         * 1. transaction broadcasting		{"type":"TB", "msg":"Hello"}
@@ -57,8 +64,9 @@ if (!json_validator($data)) {
         *
         * Message should be less than 1024 bytes
         */
+        
         $mqtt_topic = 'suki/' . $serialNumber;
-        $mqtt = new \PhpMqtt\Client\MqttClient($server, $port, $clientId);
+        $mqtt = new \PhpMqtt\Client\MqttClient($server, $port, $ApiclientId);
         $mqtt->connect();
         $mqtt->publish($mqtt_topic, $message, 0);
         $mqtt->disconnect();
@@ -95,22 +103,29 @@ function test_input($data, $connection)
 }
 
 
-function getSerialNumber($tillNumber)
+function getTillInfo($tillNumber)
 {
     global $connection, $data_array;
 
     $query = "SELECT * FROM tills WHERE `till_number` = '{$tillNumber}'";
     $select_till = mysqli_query($connection, $query);
 
-    if (!$row = mysqli_fetch_assoc($select_till)) {
+    if (!$tillRow = mysqli_fetch_assoc($select_till)) {
         $stdClass = new stdClass();
         $stdClass->result = "Till Number does not exist";
         $stdClass->status_code = 400;
         array_push($data_array, $stdClass);
         return False;
     } else {
-        $clientId = $row['client_id'];
-        $TerminalId = $row['terminal_id'];
+        $clientId = $tillRow['client_id'];
+        $TerminalId = $tillRow['terminal_id'];
+        $networkId = $tillRow['network_id']; // 1 for Vodacom, 2 for Yas
+
+         if($networkId == 1) {
+            $networkAudioFile = "VODA_LIPA.mp3+";
+        } elseif($networkId == 2) {
+            $networkAudioFile = "YAS_LIPA.mp3+";
+        }
 
         // Fetch User Informations
         $selectClientQuery = "SELECT * FROM clients WHERE `id` = '{$clientId}'";
@@ -129,7 +144,7 @@ function getSerialNumber($tillNumber)
                 echo "Terminal not active";
                 return false;
             }
-            return $terminalRow['serial_number'];
+            return array($networkAudioFile, $terminalRow['serial_number']);
 
         } else {
             // make Request to Another API or Log info
