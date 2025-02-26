@@ -53,6 +53,7 @@ if (!json_validator($data)) {
 
         $message = '{"type":"MP", "file":"' . $files . '"}';
         // $message = '{"type":"MP", "file":"' . $files . '"}';
+        // $receiver = '{"type":"TB", "msg":"' . $name . '"}';
         /*
         * Message comes in the following JSON format:
         * 1. transaction broadcasting		{"type":"TB", "msg":"Hello"}
@@ -64,11 +65,12 @@ if (!json_validator($data)) {
         *
         * Message should be less than 1024 bytes
         */
-        
+
         $mqtt_topic = 'suki/' . $serialNumber;
         $mqtt = new \PhpMqtt\Client\MqttClient($server, $port, $ApiclientId);
         $mqtt->connect();
-        $mqtt->publish($mqtt_topic, $message, 0);
+        $mqtt->publish($mqtt_topic, $message, 0); // imepokea Tsh {$amount}
+        // $mqtt->publish($mqtt_topic, $receiver, 0); // kutoka kwa {$name}
         $mqtt->disconnect();
 
         // Return Success Message
