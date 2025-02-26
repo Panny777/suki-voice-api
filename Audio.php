@@ -172,7 +172,7 @@ function buildMakumiElfu($number)
     }
     /* below block was added on Feb 23 2025 at 0851hrs to cater for 19,110 */ else if (getDigitAtMamoja($number) == 0) //19110 //19120
     {
-        return $makumiElfu  . " " .  $mamia . " NA.mp3+ " . $makumi; // . "" . $mamoja;  19110
+        return $makumiElfu  . " " .  $mamia . " " . $makumi; // . "" . $mamoja;  19110
     }
 
     return getDigitAtMamoja($number) > 0 ? $makumiElfu . " " . $mamia . " " . $makumi . " NA.mp3+ " . $mamoja : $makumiElfu . " " . $mamia . " " . $makumi . " " . $mamoja;
