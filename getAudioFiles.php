@@ -163,7 +163,7 @@ function buildMakumiElfu($number)
         return $makumiElfu;
     } else if (getDigitAtMamoja($number) == 0 && getDigitAtMakumi($number) == 0) //i.e. 21,100 >> preventing mia saba themanini na sifuri :)
     {
-        return $makumiElfu . " NA " .   $mamia; // . " " . $makumi . "" . $mamoja; 
+        return $makumiElfu . " NA.mp3+ " .   $mamia; // . " " . $makumi . "" . $mamoja; 
     } else if (getDigitAtMakumi($number) == 0 && getDigitAtMamia($number) == 0) //i.e. 21,001 >> preventing mia saba themanini na sifuri :)
     {
         return $makumiElfuReverse . " NA " .   $mamoja; // . " " . $makumi . "" . $mamoja;  //announce in reverse
