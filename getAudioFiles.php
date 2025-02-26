@@ -174,14 +174,14 @@ function buildMakumiElfu($number)
     // }
     else if ( /* getDigitAtMamoja($number) == 0   && */getDigitAtMamia($number) == 0) //90010 //90015
     {
-        return (getDigitAtMakumi($number) > 0 && getDigitAtMamoja($number)) > 0 ?  $makumiElfuReverse . " NA " . $makumi . " NA " . $mamoja :  $makumiElfuReverse . " NA " . $makumi; // . " " . $makumi . "" . $mamoja;  //announce in reverse
+        return (getDigitAtMakumi($number) > 0 && getDigitAtMamoja($number)) > 0 ?  $makumiElfuReverse . " NA " . $makumi . " NA " . $mamoja :  $makumiElfuReverse . " NA.mp3+ " . $makumi; // . " " . $makumi . "" . $mamoja;  //announce in reverse
     }
     /* below block was added on Feb 23 2025 at 0851hrs to cater for 19,110 */ else if (getDigitAtMamoja($number) == 0) //19110 //19120
     {
-        return $makumiElfu  . " " .  $mamia . " NA " . $makumi; // . "" . $mamoja;  19110
+        return $makumiElfu  . " " .  $mamia . " NA.mp3+ " . $makumi; // . "" . $mamoja;  19110
     }
 
-    return getDigitAtMamoja($number) > 0 ? $makumiElfu . " " . $mamia . " " . $makumi . " NA.mp3+ " . $mamoja : $makumiElfu . " " . $mamia . " " . $makumi . " " . $mamoja;
+    return getDigitAtMamoja($number) > 0 ? $makumiElfu . " " . $mamia . "NA.mp3+ " . $makumi . " NA.mp3+ " . $mamoja : $makumiElfu . " " . $mamia . " " . $makumi . " " . $mamoja;
 }
 
 function buildMaelfu($number)
@@ -522,31 +522,31 @@ function makumiElfuReverse($number)
 
     switch ($makumiElfu) {
         case 1:
-            $announce = ($maelfu > 0) ?  "kumi " . " NA " . mamoja($maelfu) . " elfu" : "kumi elfu";
+            $announce = ($maelfu > 0) ?  "kumi " . " .mp3+NA.mp3+ " . mamoja($maelfu) : "elfu_kumi";
             break;
         case 2:
-            $announce = $maelfu > 0 ?  "ishirini" . " NA " . mamoja($maelfu) . " elfu" : "ishirini elfu";
+            $announce = $maelfu > 0 ?  "ishirini" . " .mp3+NA.mp3+ " . mamoja($maelfu) : "elfu_ishirini";
             break;
         case 3:
-            $announce = $maelfu > 0 ?  "thelathini" . " NA " . mamoja($maelfu) . " elfu" : "thelathini elfu";
+            $announce = $maelfu > 0 ?  "thelathini" . " .mp3+NA.mp3+ " . mamoja($maelfu) : "elfu_thelathini";
             break;
         case 4:
-            $announce = $maelfu > 0 ?  "arobaini" . " NA " . mamoja($maelfu) . " elfu" : "arobaini elfu";
+            $announce = $maelfu > 0 ?  "arobaini" . " .mp3+NA.mp3+ " . mamoja($maelfu) : "elfu_arobaini";
             break;
         case 5:
-            $announce = $maelfu > 0 ?  "hamsini" . " NA " . mamoja($maelfu) . " elfu" : "hamsini elfu";
+            $announce = $maelfu > 0 ?  "hamsini" . " .mp3+NA.mp3+ " . mamoja($maelfu) : "elfu_hamsini";
             break;
         case 6:
-            $announce = $maelfu > 0 ?  "sitini" . " NA " . mamoja($maelfu) . " elfu" : "sitini elfu";
+            $announce = $maelfu > 0 ?  "sitini" . " .mp3+NA.mp3+ " . mamoja($maelfu) : "elfu_sitini";
             break;
         case 7:
-            $announce = $maelfu > 0 ?  "sabini" . " NA " . mamoja($maelfu) . " elfu" : "sabini elfu";
+            $announce = $maelfu > 0 ?  "sabini" . " .mp3+NA.mp3+ " . mamoja($maelfu) : "elfu_sabini";
             break;
         case 8:
-            $announce = $maelfu > 0 ?  "themanini" . " NA " . mamoja($maelfu) . " elfu" : "themanini elfu";
+            $announce = $maelfu > 0 ?  "themanini" . " .mp3+NA.mp3+ " . mamoja($maelfu) : "elfu_themanini";
             break;
         case 9:
-            $announce = $maelfu > 0 ?  "tisini" . " NA " . mamoja($maelfu) . " elfu" : "tisini elfu";
+            $announce = $maelfu > 0 ?  "tisini" . " .mp3+NA.mp3+ " . mamoja($maelfu) : "elfu_tisini";
             break;
     }
 
