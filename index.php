@@ -121,12 +121,14 @@ function getTillInfo($tillNumber)
     } else {
         $clientId = $tillRow['client_id'];
         $TerminalId = $tillRow['terminal_id'];
-        $networkId = $tillRow['network_id']; // 1 for Vodacom, 2 for Yas
+        $networkId = $tillRow['network_id']; // 1 for Vodacom, 2 for Yas, 3 for airtel
 
-         if($networkId == 1) {
+        if ($networkId == 1) {
             $networkAudioFile = "VODA_LIPA.mp3+";
-        } elseif($networkId == 2) {
+        } elseif ($networkId == 2) {
             $networkAudioFile = "YAS_LIPA.mp3+";
+        }elseif($networkId == 3){
+            $networkAudioFile = "AIRTEL_LIPA.mp3+";
         }
 
         // Fetch User Informations
@@ -135,6 +137,7 @@ function getTillInfo($tillNumber)
 
         $clientRow = mysqli_fetch_assoc($selectClient);
         $clientStatus = $clientRow['is_active'];
+        
         if ($clientStatus) {
             // Fetch Termianl Serial Number
             $selectTerminalQuery = "SELECT * FROM terminals WHERE `id` = '{$TerminalId}' AND `is_active` = 1";
@@ -147,7 +150,6 @@ function getTillInfo($tillNumber)
                 return false;
             }
             return array($networkAudioFile, $terminalRow['serial_number']);
-
         } else {
             // make Request to Another API or Log info
             echo "Client not active";
