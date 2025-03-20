@@ -40,6 +40,7 @@ if (!json_validator($data)) {
     // Get Details from POST Data
     $data = json_decode($data, true);
     $amount = test_input($data['amount'], $connection);
+    $amount = intval($amount);
     $tillNumber = test_input($data['tillNumber'], $connection);
     $name = test_input($data['name'], $connection);
 
