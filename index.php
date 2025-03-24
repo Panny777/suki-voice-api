@@ -1,61 +1,58 @@
 <?php
-$data_array = array();
-
-
-// Database Credentials
-$mode = "127.0.0.1";
-$username = "root";
-$password = "";
-$database = "suki-voice";
-
-$connection = mysqli_connect($mode, $username, $password, $database);
-
-if (!$connection) {
-    die("Database conection failed!!");
-}
 
 include 'vendor/autoload.php';
 include 'getAudioFiles.php';
+include 'functions.php';
+
+$functions = new Functions;
+
+$data_array = array();
+$connection = $functions->dbConnection();
+
 
 // Connection Configuration
 $server   = '193.27.90.199';
 $port     = 1883;
 $ApiclientId = 'mainServer';
 
-// $server   = '95.111.218.235';
-// $port     = 1883;
-// $clientId = 'mainServer';
-
 // Accept Json
 header('Content-Type: application/json');
 
-// curl "http://127.0.0.1:5000" -H "Content-Type: application/json" -d '{"tillNumber":"1","MSISDN":"+255", "amount":"1000", "transactionId":"111-1a32-12s", "name":"MUNIRU"}'
+/*
+curl "http://127.0.0.1:5000" -H "Content-Type: application/json"  -d '{"tillNumber":"1","MSISDN":"+255", "amount":"1000", "transactionId":"111-1a32-12s", "name":"MUNIRU"}' 
+
+*/
 
 // Receive data from POST Request
 // {"tillNumber":"","MSISDN":"+255", "amount":"1000", "transactionId":"111-1a32-12s", "name":"MUNIRU"}
-$data = file_get_contents('php://input');
-if (!json_validator($data)) {
-    echo '{"success":false, "message":"Provide Valid JSON"}';
-} else {
-    // Get Details from POST Data
-    $data = json_decode($data, true);
-    $amount = test_input($data['amount'], $connection);
-    $amount = intval($amount);
-    $tillNumber = test_input($data['tillNumber'], $connection);
-    $name = test_input($data['name'], $connection);
+$data = $functions->httpInput();
 
-    // Get Client Serial Number
-    list($networkAudioFile, $serialNumber) = getTillInfo($tillNumber);
+$amount = isset($data['amount']) ? $functions->test_input($data['amount']) : NULL;
+$amount = intval($amount);
+$msisdn = isset($data['MSISDN']) ? $functions->test_input($data['MSISDN']) : NULL;
+$msisdn_names = isset($data['name']) ? $functions->test_input($data['name']) : NULL;
+$tillNumber = isset($data['tillNumber']) ? $functions->test_input($data['tillNumber']) : NULL;
+$transactionId = isset($data['transactionId']) ? $functions->test_input($data['transactionId']) : NULL;
 
-    if ($serialNumber) {
-        $message = $data;
-        $files = getAudioFiles($amount);
-        $files = $networkAudioFile . $files;
+try {
+    if (!$amount || !$msisdn || !$msisdn_names || !$tillNumber || !$transactionId) {
+        $data_array = [
+            'code' => 401,
+            'message' => 'Some Fields are missing'
+        ];
+    } else {
+        // Get Client Serial Number
+        list($till_network, $networkAudioFile, $terminalSerialNumber) = $functions->getTillInfo($tillNumber);
 
-        $message = '{"type":"MP", "file":"' . $files . '"}';
-        // $message = '{"type":"MP", "file":"' . $files . '"}';
-        // $receiver = '{"type":"TB", "msg":"' . $name . '"}';
-        /*
+        if ($terminalSerialNumber) {
+            $message = $data;
+            $files = getAudioFiles($amount);
+            $files = $networkAudioFile . $files;
+
+            $message = '{"type":"MP", "file":"' . $files . '"}';
+            // $message = '{"type":"MP", "file":"' . $files . '"}';
+            // $receiver = '{"type":"TB", "msg":"' . $name . '"}';
+            /*
         * Message comes in the following JSON format:
         * 1. transaction broadcasting		{"type":"TB", "msg":"Hello"}
         * 2. update notification			{"type":"UN"}
@@ -67,97 +64,45 @@ if (!json_validator($data)) {
         * Message should be less than 1024 bytes
         */
 
-        $mqtt_topic = 'suki/' . $serialNumber;
-        $mqtt = new \PhpMqtt\Client\MqttClient($server, $port, $ApiclientId);
-        $mqtt->connect();
-        $mqtt->publish($mqtt_topic, $message, 0); // imepokea Tsh {$amount}
-        // $mqtt->publish($mqtt_topic, $receiver, 0); // kutoka kwa {$name}
-        $mqtt->disconnect();
+            // Insert Transaction details
+            $add_transaction_query = "INSERT INTO transactions(transaction_id, till_number, network, amount, msisdn, msisdn_names)";
+            $add_transaction_query .= "VALUES('{$transactionId}', '{$tillNumber}', '{$till_network}', '{$amount}', '{$msisdn}', '{$msisdn_names}')";
 
-        // Return Success Message
-        $stdClass = new stdClass();
-        $stdClass->result = "success";
-        $stdClass->status_code = 200;
-        array_push($data_array, $stdClass);
-    }
-}
+            $add_transaction = mysqli_query($connection, $add_transaction_query);
+            if (!$add_transaction) {
+                throw new Exception("Duplicate Transaction Id");
+                // Make Json data
+                $data_array = [
+                    'code' => 402,
+                    'message' => 'Duplicate Transaction Id'
+                ];
+            } else {
 
+                $mqtt_topic = 'suki/' . $terminalSerialNumber;
+                $mqtt = new \PhpMqtt\Client\MqttClient($server, $port, $ApiclientId);
+                $mqtt->connect();
+                $mqtt->publish($mqtt_topic, $message, 0); // imepokea Tsh {$amount}
+                // $mqtt->publish($mqtt_topic, $receiver, 0); // kutoka kwa {$name}
+                $mqtt->disconnect();
 
-function json_validator($data)
-{
-    if (!empty($data)) {
-        @json_decode($data, true);
-        return (json_last_error() === JSON_ERROR_NONE);
-    }
-    return false;
-}
-
-// Functions to Validate Data from SQLI
-function test_input($data, $connection)
-{
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
-
-    $data = mysqli_real_escape_string($connection, $data);
-
-    // return preg_replace('/[^A-Za-z0-9\-]/', '', $data); // Removes special chars. 
-    return $data;
-}
-
-
-function getTillInfo($tillNumber)
-{
-    global $connection, $data_array;
-
-    $query = "SELECT * FROM tills WHERE `till_number` = '{$tillNumber}'";
-    $select_till = mysqli_query($connection, $query);
-
-    if (!$tillRow = mysqli_fetch_assoc($select_till)) {
-        $stdClass = new stdClass();
-        $stdClass->result = "Till Number does not exist";
-        $stdClass->status_code = 400;
-        array_push($data_array, $stdClass);
-        return False;
-    } else {
-        $clientId = $tillRow['client_id'];
-        $TerminalId = $tillRow['terminal_id'];
-        $networkId = $tillRow['network_id']; // 1 for Vodacom, 2 for Yas, 3 for airtel
-
-        if ($networkId == 1) {
-            $networkAudioFile = "VODA_LIPA.mp3+";
-        } elseif ($networkId == 2) {
-            $networkAudioFile = "YAS_LIPA.mp3+";
-        }elseif($networkId == 3){
-            $networkAudioFile = "AIRTEL_LIPA.mp3+";
-        }
-
-        // Fetch User Informations
-        $selectClientQuery = "SELECT * FROM clients WHERE `id` = '{$clientId}'";
-        $selectClient = mysqli_query($connection, $selectClientQuery);
-
-        $clientRow = mysqli_fetch_assoc($selectClient);
-        $clientStatus = $clientRow['is_active'];
-        
-        if ($clientStatus) {
-            // Fetch Termianl Serial Number
-            $selectTerminalQuery = "SELECT * FROM terminals WHERE `id` = '{$TerminalId}' AND `is_active` = 1";
-            $selectTerminal = mysqli_query($connection, $selectTerminalQuery);
-
-            $terminalRow = mysqli_fetch_assoc($selectTerminal);
-
-            if (!$terminalRow || !isset($terminalRow['serial_number'])) {
-                echo "Terminal not active";
-                return false;
+                // Return Success Message
+                $stdClass = new stdClass();
+                $stdClass->result = "success";
+                $stdClass->status_code = 200;
+                array_push($data_array, $stdClass);
             }
-            return array($networkAudioFile, $terminalRow['serial_number']);
-        } else {
-            // make Request to Another API or Log info
-            echo "Client not active";
-            return False;
         }
     }
+} catch (Exception $e) {
+    // $this->log("SUKI *** " . $e->getMessage() . " - " . $e->getCode(), 1);
+    $data_array = [
+        'code' => 500,
+        'message' => $e->getMessage()
+    ];
 }
+
+
+
 
 $data_array = json_encode($data_array);
 $data_array = str_replace('[', '', $data_array);
